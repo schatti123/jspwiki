@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Nothing to do in the install phase...
+  pre_build:
+    commands:
+      - echo Nothing to do in the pre_build phase...
+      - cov-configure --java
+      - cov-configure --javascript
+  build:
+    commands:
+      - echo Build started on `date`
+      - cov-build --dir /root/coverity-idirs/jspwiki --return-emit-failures --delete-stale-tus mvn clean -Dmaven.test.skip=true install
+  post_build:
+    commands:
+      - cov-emit-java --dir /root/coverity-idirs/jspwiki --war jspwiki-war/target/JSPWiki.war --delete-old-wars
+      - cov-analyze --dir /root/coverity-idirs/jspwiki
+      - cov-format-errors --dir /root/coverity-idirs/jspwiki --json-output-v2 coverity_analysis_output.json
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - /root/.m2/repository/org/apache/jspwiki/jspwiki-war/2.10.3-SNAPSHOT/jspwiki-war-2.10.3-SNAPSHOT.war
+    - /root/coverity-idirs/jspwiki/output/*
+    - coverity_analysis_output.json
+  discard-paths: yes

@@ -24,7 +24,7 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - /root/build_artifacts
-    - /root/intermediate_result
+    - /root/build_artifacts*
+    - /root/intermediate_result*
     - coverity_analysis_output.json
   discard-paths: yes

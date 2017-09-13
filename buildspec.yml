@@ -31,5 +31,5 @@ phases:
       - ls -l /root/coverity_output
 artifacts:
   files:
-    - /root/coverity_output/*
+    - /root/coverity_output/**/* 
   discard-paths: yes

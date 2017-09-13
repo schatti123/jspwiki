@@ -28,7 +28,7 @@ phases:
       - mv /root/build_artifacts /coverity_output
       - mv /root/intermediate_result /coverity_output
       - mv coverity_analysis_output.json /coverity_output
-      - ls -l /root/coverity_output
+      - ls -l /coverity_output
 artifacts:
   files:
     - /coverity_output/**/* 

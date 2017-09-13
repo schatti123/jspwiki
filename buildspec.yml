@@ -32,4 +32,4 @@ phases:
 artifacts:
   files:
     - /root/coverity_output/**/* 
-  discard-paths: yes
+  discard-paths: no

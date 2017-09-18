@@ -15,20 +15,7 @@ phases:
       - cov-build --dir /root/coverity-idirs/jspwiki --return-emit-failures --delete-stale-tus mvn clean -Dmaven.test.skip=true install
   post_build:
     commands:
-      - cov-emit-java --dir /root/coverity-idirs/jspwiki --war jspwiki-war/target/JSPWiki.war --delete-old-wars
-      - cov-analyze --dir /root/coverity-idirs/jspwiki
-      - cov-format-errors --dir /root/coverity-idirs/jspwiki --json-output-v2 coverity_analysis_output.json
-      - mkdir /root/build_artifacts
-      - cp /root/.m2/repository/org/apache/jspwiki/jspwiki-war/2.10.3-SNAPSHOT/jspwiki-war-2.10.3-SNAPSHOT.war /root/build_artifacts
-      - cp -r /root/coverity-idirs/jspwiki/output/ /root/intermediate_result
-      - echo Build completed on `date`
-      - ls -l /root/build_artifacts
-      - ls -l /root/intermediate_result
-      - mkdir /coverity_output
-      - mv /root/build_artifacts /coverity_output
-      - mv /root/intermediate_result /coverity_output
-      - mv coverity_analysis_output.json /coverity_output
-      - ls -l /coverity_output
+     - cov-analyze --dir /root/coverity-idirs/jspwiki
 artifacts:
   files:
     - /coverity_output/**/* 

@@ -29,12 +29,13 @@ Wiki.DirectSnips = {
     '[' : ']',
     '{' : '}',
     "'" : {
-    snippet: "'",
-    scope: {
-        "[{" : "}]"  //plugin parameters
-      }
-    }
+        snippet: "'",
+        scope: {
+            "[{" : "}]"  //plugin parameters
+          }
+        }
 };
+
 
 /*
 Function: snippets
@@ -103,10 +104,16 @@ Wiki.Snips = {
 
     tabs: {
         nScope: {
-        "%%(":")",
-        "%%tabs":"/%"
+            "%%(":")",
+            "%%tabs":"/%"
         },
         snippet:"%%tabs\n!tab-1\ntab-1 content 1\n!tab-2\ntab-2 content \n/%\n "
+    },
+
+    insertPageDlg:{
+        scope: { "[{InsertPage":"}]" },
+        suggest: { lback:"page='([^']*)'?$", match: "^([^']*)" },
+        insertPageDlg: Wiki.pageDialog("Insert Page", "/search/suggestions")
     },
 
     img: "\n[{Image src='{img.jpg}' width='400px' height='300px' align='left' }]\n ",
@@ -333,7 +340,7 @@ Wiki.Snips = {
         suggest: {lback: "table-(?:[\\w-]+-)?(\\w*)$", match: "^\\w*" },
         tableDlg: [Dialog.Selection, {
         cssClass:".dialog-horizontal",
-        body: "sort|filter|striped|bordered|hover|condensed|fit"
+        body: "sort|filter|striped|bordered|noborder|hover|condensed|fit"
         }]
     },
 
@@ -417,8 +424,8 @@ Wiki.Snips = {
         //match [link],  do not match [{, [[
         //do not include the [ in the matched string
         suggest: {
-        lback: /\[([^\|\[{\]\n\r]*)$/,
-        match: /^([^\|\[{\]\n\r]*)(?:[\]\n\r])/
+        lback: /\[([^|[{\]\n\r]*)$/,
+        match: /^([^|[{\]\n\r]*)(?:[\]\n\r])/
         },
         linkDlg: Wiki.pageDialog("Wiki Link", "/search/suggestions")
 
@@ -429,8 +436,8 @@ Wiki.Snips = {
         //do not match [{, [[
         //do not include the [ in the matched string
         suggest: {
-        lback: /\[(?:[^\|\]]+\|)([^\|\[{\]\n\r]*)$/,
-        match: /^([^\|\[{\]\n\r]*)(?:[\]\|\n\r])/
+        lback: /\[(?:[^|\]]+\|)([^|[{\]\n\r]*)$/,
+        match: /^([^|[{\]\n\r]*)(?:[\]|\n\r])/
         },
         linkPart2: Wiki.pageDialog("Wiki Link", "/search/suggestions")
     },
@@ -593,7 +600,7 @@ Wiki.Snips = {
                 //"[description|{link}|options]": "<span class='icon-link'/>",
                 "[{Image src='{image.jpg}'}]": "<span class='icon-picture' title='Insert an image'/>",
                 "[{{plugin}}]": "<span class='icon-puzzle-piece' title='Insert a Plugin'></span>",
-                "%%style {body} /%":"<span style='font-family:monospace;' title='Add a Style'>%%</span>",
+                "%%style {body} /%":"<span style='font-family:monospace;letter-spacing:-.2em;' title='Add a Style'>%%</span>",
                 "divider2": "",
                 "%%(font-family:{font};) body /%":"<span title='Change the Font'><span style='font-family:serif;'>A</span><span style='font-family:sans-serif'>a</span></span>",
                 "&{entity};" : "<span style='font-family:cursive;' title='Insert a Special Character'>&amp;</span>",

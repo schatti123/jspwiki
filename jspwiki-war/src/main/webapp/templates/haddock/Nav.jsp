@@ -32,11 +32,37 @@
 <c:set var="attachments" value="<%= c.getEngine().getAttachmentManager().listAttachments( c.getPage() ).size() %>" />
 
 <%-- navigation bar --%>
-<div class="navigation">
+<div class="navigation" role="navigation">
 
 <ul class="nav nav-pills pull-left">
   <%-- toggle sidebar --%>
   <li id="menu"><a href="#"><!--&#x2261;-->&#9776;</a></li>
+
+  <c:set var="refresh_breadCrumbTrail_attr"><wiki:Breadcrumbs /></c:set>
+  <%-- don't show the breadcrumbs if it has none or only one item --%>
+  <c:if test="${fn:length(breadCrumbTrail) gt 2}">
+  <li id="trail" tabindex="0">
+    <a href="#">
+        <span>&hellip;</span>
+        <span><fmt:message key="actions.trail"/></span>
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" data-hover-parent="li">
+      <li class="dropdown-header"><fmt:message key="header.yourtrail"/></li>
+      <li class="divider"></li>
+
+      <%--  FIXME: breadcrumbs tag returns items in wrong order: most recent item is at back of the list !!
+      <li><wiki:Breadcrumbs separator="</li><li>" /></li>
+      --%>
+      <c:forEach items="${breadCrumbTrail}" varStatus="status" begin="2">
+          <c:set var="crumb" value="${breadCrumbTrail[fn:length(breadCrumbTrail) - status.index]}" />
+          <li><wiki:Link page="${crumb}">${crumb}</wiki:Link></li>
+      </c:forEach>
+
+    </ul>
+  </li>
+  </c:if>
+
 </ul>
 
 <ul class="nav nav-pills pull-right">
@@ -47,52 +73,95 @@
     </c:set>
 
   <%-- view --%>
+
+  <%-- context upload -> context view&tab=attach ... --%>
+  <%--
+  <c:if test="${param.tab eq 'attach'}">
+  <li id="view">
+    <wiki:Link page="${page}" >
+        <span class="icon-view-menu"></span>
+        <span><fmt:message key="view.tab"/></span>
+    </wiki:Link>
+  </li>
+  </c:if>
+  --%>
   <wiki:CheckRequestContext context='info|diff|upload|rename|edit|comment|conflict'>
   <li id="view">
-    <wiki:Link page="${page}" ><fmt:message key="view.tab"/></wiki:Link>
+    <wiki:Link page="${page}" >
+        <span class="icon-view-menu"></span>
+        <span><fmt:message key="view.tab"/></span>
+    </wiki:Link>
   </li>
   </wiki:CheckRequestContext>
 
-  <%-- attachment --%>
+  <%-- attachment   : included in the info menu
   <wiki:CheckRequestContext context='view|info|rename|diff|rename|edit|comment|conflict'>
   <wiki:PageExists>
+  <c:if test="${param.tab ne 'attach'}"><!-- context upload -> context view&tab=attach ... -- >
   <li id="attach"
    class="<wiki:Permission permission='!upload'>disabled</wiki:Permission>">
     <wiki:Link page="${page}" context="upload" accessKey="a" >
-      <fmt:message key='attach.tab'/>
+      <span class="icon-paper-clip"></span>
+      <span><fmt:message key='attach.tab'/></span>
       <c:if test="${attachments > 0}"><span class="badge">${attachments}</span></c:if>
     </wiki:Link>
   </li>
+  </c:if>
   </wiki:PageExists>
   </wiki:CheckRequestContext>
+  --%>
 
   <%-- info --%>
   <wiki:CheckRequestContext context='view|info|upload|rename|edit|comment|conflict'>
   <wiki:PageExists>
-  <li id="info">
-    <wiki:Link context="info" accessKey="i">
-      <fmt:message key='info.tab'/><wiki:PageExists><span class="caret"></span></wiki:PageExists>
-    </wiki:Link>
+  <li id="info" tabindex="0">
+      <a href="#" accessKey="i">
+        <span class="icon-info-menu"></span>
+        <span><fmt:message key='info.tab'/></span>
+        <c:if test="${attachments > 0}"><span class="badge">${attachments}</span></c:if>
+        <wiki:PageExists><span class="caret"></span></wiki:PageExists>
+      </a>
     <ul class="dropdown-menu pull-right" data-hover-parent="li">
       <li class="dropdown-header"><fmt:message key="info.version"/> : <span class="badge"><wiki:PageVersion /></span></li>
-      <li class="dropdown-header"><fmt:message key="info.date"/> : </li>
-      <wiki:CheckVersion mode="latest">
-        <li><wiki:DiffLink version="latest" newVersion="previous"><wiki:PageDate format='${prefs["DateFormat"]}'/></wiki:DiffLink></li>
-      </wiki:CheckVersion>
-      <wiki:CheckVersion mode="notlatest">
-        <li><wiki:DiffLink version="current" newVersion="latest"><wiki:PageDate format='${prefs["DateFormat"]}'/></wiki:DiffLink></li>
-      </wiki:CheckVersion>
-      <li class="dropdown-header"><fmt:message key="info.author"/> : </li>
-      <li>
+      <li class="dropdown-header"><fmt:message key="info.date"/> :
+        <span>
+        <wiki:CheckVersion mode="latest">
+          <wiki:DiffLink version="latest" newVersion="previous"><wiki:PageDate format='${prefs["DateFormat"]}'/></wiki:DiffLink>
+        </wiki:CheckVersion>
+        <wiki:CheckVersion mode="notlatest">
+          <wiki:DiffLink version="current" newVersion="latest"><wiki:PageDate format='${prefs["DateFormat"]}'/></wiki:DiffLink>
+        </wiki:CheckVersion>
+        </span>
+      </li>
+      <li class="dropdown-header"><fmt:message key="info.author"/> :
+        <span>
         <%-- wiki:Author sometimes returns a link(ok) or a plain text, we always need a link! --%>
         <c:set var="author"><wiki:Author/></c:set>
         <c:choose>
           <c:when test="${ fn:contains(author,'href=')}">${author}</c:when>
           <c:otherwise><a href="#">${author}</a></c:otherwise>
         </c:choose>
+        </span>
+      </li>
+      <li class="dropdown-header">
+        <wiki:RSSImageLink mode="wiki" title="<fmt:message key='info.feed'/>"/>
       </li>
       <li class="divider"></li>
-      <li><wiki:RSSImageLink mode="wiki" /></li>
+      <li class="dropdown-header">
+        <c:set var="disabledBtn" value=""/>
+        <wiki:CheckRequestContext context='info'><c:set var="disabledBtn" value="disabled" /></wiki:CheckRequestContext>
+          <wiki:Link cssClass="btn btn-xs btn-default ${disabledBtn}" context="info" tabindex="0"><fmt:message key='info.moreinfo'/></wiki:Link>
+      </li>
+      <li class="dropdown-header">
+        <c:set var="disabledBtn" value=""/>
+        <wiki:CheckRequestContext context='upload'><c:set var="disabledBtn" value="disabled" /></wiki:CheckRequestContext>
+        <wiki:Permission permission='!upload'><c:set var="disabledBtn" value="disabled" /></wiki:Permission>
+        <wiki:Link cssClass="btn btn-xs btn-default ${disabledBtn}" page="${page}" context="upload" tabindex="0">
+          <span class="icon-paper-clip"></span>
+          <fmt:message key='edit.tab.attachments'/>
+          <c:if test="${attachments > 0}"><span class="badge">${attachments}</span></c:if>
+        </wiki:Link>
+      </li>
     </ul>
   </li>
   </wiki:PageExists>
@@ -106,12 +175,14 @@
 	  class="<wiki:Permission permission='!edit'>disabled</wiki:Permission>">
       <wiki:PageType type="page">
         <wiki:Link context="edit" accessKey="e" >
-          <fmt:message key='actions.edit'/>
+          <span class="icon-pencil"></span>
+          <span><fmt:message key='actions.edit'/></span>
         </wiki:Link>
       </wiki:PageType>
       <wiki:PageType type="attachment">
         <wiki:Link context="edit" page="<wiki:ParentPageName />" accessKey="e" >
-          <fmt:message key='actions.edit'/>
+          <span class="icon-pencil"></span>
+          <span><fmt:message key='actions.edit'/></span>
         </wiki:Link>
       </wiki:PageType>
     </li>
@@ -123,14 +194,16 @@
   <wiki:CheckRequestContext context='find'>
   <li>
     <a class="slimbox-link" href="<wiki:Link format='url' page='SearchPageHelp' ><wiki:Param name='skin' value='reader'/></wiki:Link>">
-      <fmt:message key="find.tab.help" />
+      <span class="icon-help-menu"></span>
+      <span><fmt:message key="find.tab.help" /></span>
     </a>
   </li>
   </wiki:CheckRequestContext>
   <wiki:CheckRequestContext context='edit|comment'>
   <li>
-    <a class="slimbox-link" href="<wiki:Link format='url' page='EditPageHelp' ><wiki:Param name='skin' value='reader'/></wiki:Link>">
-      <fmt:message key="edit.tab.help" />
+    <a class="slimbox-link" href="<wiki:Link format='url' page='EditPageHelp' ></wiki:Link>">
+      <span class="icon-help-menu"></span>
+      <span><fmt:message key="edit.tab.help" /></span>
     </a>
     <%--
       <wiki:NoSuchPage page="EditPageHelp">
@@ -146,7 +219,8 @@
   <wiki:CheckRequestContext context='login'>
   <li>
     <a class="slimbox-link" href="<wiki:Link format='url' page='LoginHelp' ><wiki:Param name='skin' value='reader'/></wiki:Link>">
-      <fmt:message key="login.tab.help" />
+      <span class="icon-help-menu"></span>
+      <span><fmt:message key="login.tab.help" /></span>
     </a>
   </li>
   <%--
@@ -163,8 +237,12 @@
 
 
   <%-- more menu --%>
-  <li id="more">
-    <a href="#"><fmt:message key="actions.more"/><span class="caret"></span></a>
+  <li id="more" tabindex="0">
+    <a href="#">
+        <span class="icon-ellipsis-v"></span>
+        <span><fmt:message key="actions.more"/></span>
+        <span class="caret"></span>
+    </a>
     <ul class="dropdown-menu pull-right" data-hover-parent="li">
       <wiki:PageExists>
       <wiki:CheckRequestContext context='view|info|diff|upload|preview' >
@@ -212,8 +290,7 @@
         <wiki:PageType type="page">
           <li>
             <wiki:Link context="comment">
-              <span class="icon-plus"></span>
-              <fmt:message key="actions.comment" />
+              <span class="icon-plus"></span> <fmt:message key="actions.comment" />
             </wiki:Link>
           </li>
         </wiki:PageType>

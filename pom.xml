@@ -22,14 +22,14 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>17</version>
+    <version>21</version>
   </parent>
 
   <groupId>org.apache.jspwiki</groupId>
   <artifactId>jspwiki-builder</artifactId>
   <modelVersion>4.0.0</modelVersion>
   <name>Apache JSPWiki</name>
-  <version>2.10.3-SNAPSHOT</version>
+  <version>2.11.0.M1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Apache JSPWiki is a leading open source WikiWiki engine, feature-rich
     and built around standard J2EE components (Java, servlets, JSP).</description>
@@ -39,27 +39,33 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jdk.version>1.6</jdk.version>
+    <flexmark.version>0.34.46</flexmark.version>
+    <jdk.version>1.8</jdk.version>
+    <maven.compiler.source>${jdk}</maven.compiler.source> <!-- override values from parent pom -->
+    <maven.compiler.target>${jdk}</maven.compiler.target>
     <lucene.version>4.7.0</lucene.version>
     <selenium.version>2.42.0</selenium.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <wro4j.version>1.7.8</wro4j.version>
+    <slf4j.version>1.7.25</slf4j.version>
+	<tomcat.version>8.5.34</tomcat.version>
+    <wro4j.version>1.8.0</wro4j.version>
     <minimize>true</minimize> <!-- wro4j compression -->
   </properties>
 
   <prerequisites>
-    <maven>3.0.4</maven>
+    <maven>3.5.0</maven>
   </prerequisites>
 
   <scm>
-    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/jspwiki.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/jspwiki.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=summary</url>
+    <connection>scm:git:https://github.com/apache/jspwiki.git</connection>
+    <developerConnection>scm:git:https://github.com/apache/jspwiki.git</developerConnection>
+    <url>https://github.com/apache/jspwiki</url>
+    <tag>HEAD</tag>
   </scm>
 
   <modules>
     <module>jspwiki-wikipages</module>
     <module>jspwiki-war</module>
+    <module>jspwiki-markdown</module>
     <module>jspwiki-portable</module>
     <module>jspwiki-it-tests</module><!-- IT tests are launched only if -Pintegration-tests is given -->
   </modules>
@@ -67,6 +73,24 @@
   <dependencyManagement> <!-- defines what configuration is going to be used if, and only if, the dependency is used -->
     <dependencies>       <!-- ordered alphabetically by scope:groupId:artifactId                                     -->
       <!-- compile dependencies -->
+      <dependency>
+        <groupId>com.vladsch.flexmark</groupId>
+        <artifactId>flexmark</artifactId>
+        <version>${flexmark.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.vladsch.flexmark</groupId>
+        <artifactId>flexmark-ext-footnotes</artifactId>
+        <version>${flexmark.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.vladsch.flexmark</groupId>
+        <artifactId>flexmark-ext-toc</artifactId>
+        <version>${flexmark.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
@@ -228,7 +252,7 @@
       <dependency>
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes</artifactId>
-        <version>1.5.8</version>
+        <version>1.6.0</version>
       </dependency>
 
       <!--
@@ -258,22 +282,22 @@
       <!-- provided dependencies -->
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.1</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.0</version>
       </dependency>
 
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
       </dependency>
 
       <!-- runtime dependencies -->
-        <dependency>
-            <groupId>net.sourceforge.nekohtml</groupId>
-            <artifactId>nekohtml</artifactId>
-            <version>1.9.21</version>
-        </dependency>
+      <dependency>
+        <groupId>net.sourceforge.nekohtml</groupId>
+        <artifactId>nekohtml</artifactId>
+        <version>1.9.21</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -288,6 +312,11 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>net.nicoulaj.maven.plugins</groupId>
+        <artifactId>checksum-maven-plugin</artifactId>
+      </plugin>
     </plugins>
 
     <pluginManagement> <!-- defines what configuration is going to be used if, and only if, the plugin is used                          -->
@@ -299,22 +328,34 @@
 
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
+          <version>3.1.0</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>2.6.1</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.7.0</version>
           <configuration>
             <encoding>${project.build.sourceEncoding}</encoding>
             <source>${jdk.version}</source>
             <target>${jdk.version}</target>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm</artifactId>
+              <version>6.1.1</version> <!-- MCOMPILER-332 -->
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.1</version>
         </plugin>
 
         <plugin>
@@ -341,12 +382,12 @@
 
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.4</version>
+          <version>1.4.1</version>
           <configuration>
             <fail>true</fail>
             <rules>
               <requireJavaVersion>
-                <message>MUST USE JDK 1.6</message>
+                <message>MUST USE JDK ${jdk.version}</message>
                 <version>${jdk.version}</version>
               </requireJavaVersion>
               <requireMavenVersion>
@@ -359,7 +400,7 @@
 
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.0.2</version>
           <configuration>
             <archive>
               <manifest>
@@ -371,13 +412,6 @@
               </manifestEntries>
             </archive>
           </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>test-jar</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
 
         <plugin>
@@ -390,30 +424,26 @@
 
         <plugin>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.3</version>
+          <version>3.0.1</version>
           <configuration>
-            <additionalparam>
-            -charset ${project.build.sourceEncoding}
-            -docencoding ${project.build.sourceEncoding}
-            -version
-            -author
-            -breakiterator
-            -linksource
-            -sourcetab 4
-            -windowtitle "${project.name} ${project.version}"
-            -bottom ""
-            -doctitle "${project.name} ${project.version}"
-            -link {project.organization.url}
-            </additionalparam>
+            <additionalOptions>
+              <additionalOption>-sourceclasspath ${project.build.outputDirectory}</additionalOption>
+              <additionalOption>-Xdoclint:none</additionalOption>
+            </additionalOptions>
+            <author>${project.organization.name}</author>
             <bottom>Copyright © {inceptionYear}-{currentYear} ${project.organization.name}. All rights reserved.</bottom>
+            <breakiterator>true</breakiterator>
             <doclet>org.jboss.apiviz.APIviz</doclet>
             <docletArtifact>
-              <groupId>org.jboss.apiviz</groupId>
+              <groupId>com.grahamedgecombe.apiviz</groupId>
               <artifactId>apiviz</artifactId>
-              <version>1.3.2.GA</version>
+              <version>1.3.4</version>
             </docletArtifact>
-            <encoding>${project.build.sourceEncoding}</encoding>
+            <linksource>true</linksource>
+            <sourcetab>4</sourcetab>
             <quiet>true</quiet>
+            <useStandardDocletOptions>true</useStandardDocletOptions>
+            <version>${project.version}</version>
           </configuration>
         </plugin>
 
@@ -424,12 +454,31 @@
 
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>2.8</version>
+          <version>2.9</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-api</artifactId>
+              <version>1.9.5</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-providers-standard</artifactId>
+              <version>1.9.5</version>
+              <type>pom</type>
+              <scope>runtime</scope>
+            </dependency>
+          </dependencies>
         </plugin>
 
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.7</version>
+          <version>3.0.2</version>
           <configuration>
             <encoding>${project.build.sourceEncoding}</encoding>
           </configuration>
@@ -437,22 +486,22 @@
 
         <plugin>
           <artifactId>maven-source-plugin</artifactId>
-          <version>2.4</version>
+          <version>3.0.1</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>2.21.0</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>2.21.0</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.2.0</version>
           <configuration>
             <archive>
               <manifest>
@@ -474,11 +523,29 @@
           - use UglifyJS for JS compression
           - use Less as advanced CSS preprocessor
         -->
-        
+
         <plugin>
           <groupId>com.btmatthews.maven.plugins.inmemdb</groupId>
           <artifactId>inmemdb-maven-plugin</artifactId>
           <version>1.4.3</version>
+        </plugin>
+        
+        <plugin>
+          <groupId>net.nicoulaj.maven.plugins</groupId>
+          <artifactId>checksum-maven-plugin</artifactId>
+          <version>1.7</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>artifacts</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <algorithms>
+              <algorithm>SHA-512</algorithm>
+            </algorithms>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -511,11 +578,9 @@
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
-          <version>0.11</version>
           <configuration>
             <excludes>
-              <exclude>mvn_cheat-sheet.md</exclude> <!-- handy list of maven commands; will be moved to site once we've switched to Maven -->
-              <exclude>.gitignore</exclude>          <!-- git exclusions -->
+              <exclude>.gitignore</exclude>                                     <!-- git exclusions -->
               <exclude>**/src/main/config/doc/LICENSE.*</exclude>               <!-- 3rd party License files -->
               <exclude>**/src/main/config/wikipages/**</exclude>                <!-- Default wikipages -->
               <exclude>**/src/main/config/dev/OldChangeLog</exclude>            <!-- ChangeLog excluded by default, this is, well, an old ChangeLog -->
@@ -537,25 +602,53 @@
         </plugin>
 
         <plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-          <artifactId>tomcat7-maven-plugin</artifactId>
-          <version>2.2</version>
+          <groupId>org.codehaus.cargo</groupId>
+          <artifactId>cargo-maven2-plugin</artifactId>
+          <version>1.6.10</version>
           <configuration>
-            <contextReloadable>true</contextReloadable>
-            <port>8080</port>
+            <container>
+              <!-- https://codehaus-cargo.github.io/cargo/Maven2+Plugin+Reference+Guide.html#Maven2PluginReferenceGuide-container -->
+              <containerId>tomcat8x</containerId>
+              <zipUrlInstaller>
+                <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+              </zipUrlInstaller>
+              <output>${project.build.directory}/tomcat8x/logs/container.log</output>
+              <systemProperties>
+                <user.language>en</user.language>
+                <user.region>US</user.region>
+              </systemProperties>
+            </container>
+            <configuration>
+              <type>standalone</type>
+              <home>${project.build.directory}/tomcat8x</home>
+              <properties>
+                <cargo.servlet.port>8080</cargo.servlet.port>
+                <cargo.jvmargs>-XX:MaxPermSize=512m -Xms256m -Xmx3072m -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -XX:+DisableExplicitGC -Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
+              </properties>
+            </configuration>
+            <!-- <deployables>
+              <deployable>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jspwiki-war</artifactId>
+                <type>war</type>
+                <properties>
+                  <context>/JSPWiki</context>
+                </properties>
+              </deployable>
+            </deployables> -->
           </configuration>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>clirr-maven-plugin</artifactId>
-          <version>2.6.1</version>
+          <version>2.8</version>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.6</version>
+          <version>2.7</version>
           <configuration>
             <formats>
               <format>html</format>
@@ -576,7 +669,7 @@
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.2</version>
+          <version>3.4.0.905</version>
         </plugin>
 
         <plugin>
@@ -674,6 +767,20 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>markdown-support</id>
+      <activation>
+        <jdk>[1.7,)</jdk>
+      </activation>
+      <modules>
+        <module>jspwiki-wikipages</module>
+        <module>jspwiki-war</module>
+        <module>jspwiki-markdown</module>
+        <module>jspwiki-portable</module>
+        <module>jspwiki-it-tests</module><!-- IT tests are launched only if -Pintegration-tests is given -->
+      </modules>
     </profile>
   </profiles>
 

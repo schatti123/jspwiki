@@ -69,8 +69,11 @@ h2,h3,h4 {
 
 }
 
-.sidebar .hashlink, .sidebar .editsection, .panel-title .hashlink { .hidden; }
-
+.sidebar .hashlink,
+.sidebar .editsection,
+.panel-title .hashlink {
+	.hidden;
+}
 
 .lead {
     font-family:@wiki-logo-font-family;
@@ -227,10 +230,10 @@ span.text-white, div.text-white, .bg.dark + .bg-overlay { color:@white; }
 span.text-black, div.text-black, .bg.light + .bg-overlay { color:@black; }
 
 .text-white.shadow {
-  text-shadow: 1px 1px 0 rgba(0,0,0,.25), 0 0 1em @white;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.25), 0 0 1em @white;
 }
 .text-black.shadow {
-  text-shadow: 1px 1px 0 rgba(255,255,255,.25), 0 0 1em @white;
+    text-shadow: 1px 1px 0 rgba(255,255,255,.25), 0 0 1em @white;
 }
 
 //checkme - should be defined in bootstrap
@@ -262,13 +265,15 @@ span.text-black, div.text-black, .bg.light + .bg-overlay { color:@black; }
 .bg-gray, .bg-grey  { background-color: @gray; color:@white; }
 .bg-black   { background-color: @black; color:@white; }
 
-/* Background images in jspwiki
-markup
-    %%bg [some image link] /%
+/*
+Background images in jspwiki
+
+Markup
+>    %%bg [some image link] /%
 becomes
-    span.background(.fixed|.cover|.contain)(.top|.bottom|.left|.right)
-    div.background-overlay
-        <wrapping all siblings>
+>    span.background(.fixed|.cover|.contain)(.top|.bottom|.left|.right)
+>    div.background-overlay
+>        <wrapping all siblings>
 */
 .bg > img, .bg > img.inline, .bg > .imageplugin img { display:none; }
 
@@ -330,10 +335,10 @@ pre {
   //better is to set top & bottom margins, in case the previous dom elements is a text node
   //  margin: (@line-height-computed / 2) 0;
 
-  //overwrite bootstratp defaults: use alpha/transparency to also support dark backgrounds.
+  //overwrite bootstrap defaults: use alpha/transparency to also support dark backgrounds.
   //color: @pre-color;
-  background-color: fadeout(@pre-bg,50%);
-  border: 1px solid fadeout(@pre-border-color,50%);
+  background-color: @wiki-pre-bg;
+  border: 1px solid @wiki-pre-border-color;
 
 }
 .small pre {
@@ -351,7 +356,6 @@ tt {
 }
 
 //list-unstyled : bootstrap
-//list-hover
 .list-hover {
     li:hover {
         background-color:@dropdown-link-hover-bg;
@@ -359,7 +363,6 @@ tt {
     }
 }
 .list-nostyle { list-style: none; }
-
 .list-group.raised li { border:none; }
 
 
@@ -405,6 +408,8 @@ Links:
 //generic behavior -- why not part of bootstrap ??
 a:hover {
     cursor:pointer;
+    //text-decoration: underline;
+    -webkit-text-decoration-skip: ink;
 }
 
 //mimic :hover, for old ie cases which may not yet support :hover
@@ -413,6 +418,11 @@ a:hover {
 .createpage {
     color: @wiki-link-createpage;
     border-bottom: 1px dashed @wiki-link-createpage;
+    &:after {
+    	.icon--text();
+    	content:"?";
+    	background-color:@wiki-link-createpage;
+    }
     &:hover {
         color:darken(@wiki-link-createpage,10%);
         text-decoration:none;
@@ -438,17 +448,17 @@ button + a.infolink {
     > img { display:none; }
 }
 
-
 /*
 Interwiki links
 */
 .interwiki-reader,
 a.interwiki[href$="skin=reader"] {
     &::after {
-        color:@link-color;
         .icon--all;
         .sup;
         content:@icon-leanpub;
+        margin-left:.15em;
+        //color:@link-color;  //needed for More-Menu style
     }
     &:hover::after {
         //text-decoraction:none;  //FIXME: doesnt work ...
@@ -459,6 +469,7 @@ a.interwiki[href$="skin=raw"] {
     &::after {
         .icon--text();
         content:"raw";
+        margin-left:.15em;
     }
     &:hover::after {
         //text-decoraction:none;
@@ -470,6 +481,7 @@ a.interwiki[href*="Edit.jsp?page="] {
     &::after {
         .icon--text;
         content:"edit";
+        margin-left:.15em;
         //color:@link-color;
         //.icon--all;
         //.sup;
@@ -485,6 +497,7 @@ a.interwiki[href*="Group.jsp?group="] {
     &::after {
         .icon--text;
         content:"group";
+        margin-left:.15em;
         //color:@link-color;
         //.icon--all;
         //.sup;
@@ -495,6 +508,15 @@ a.interwiki[href*="Group.jsp?group="] {
         background-color:@link-hover-color;
     }
 }
+a.interwiki[href^="rss.jsp"],
+.feed {
+	&:after {
+       .icon--all;
+        content:@icon-rss;
+	}
+    &:hover { text-decoration:none; }
+}
+.dropdown-menu > li > a.feed { padding-left:0; }
 
 /*
 Footnotes
@@ -644,9 +666,13 @@ span.default, span.success, span.information, span.info,  span.warning, span.err
     display: inline;
     padding: .05em .25em;
 }
+span.success, span.information, span.info,  span.warning, span.error, span.danger {
+    border:none;
+}
 
 .default {
-    .alert-variant(@btn-default-bg; @btn-default-border; @btn-default-color);
+    .alert-variant(@wiki-pre-bg; @wiki-pre-border-color; @btn-default-color);
+
 }
 .success            { .alert-success; }
 .info, .information { .alert-info; }
@@ -654,9 +680,8 @@ span.default, span.success, span.information, span.info,  span.warning, span.err
 .error, .danger     { .alert-danger; }
 
 //CHECKME: make sure to fill the table cell with the background color
-td .success, td .information, td .warning, td .error { margin:0; }
+td .success, td .info, td .information, td .warning, td .error, td .danger  { margin:0; }
 //BETTER:  td > .alert { margin:0; }
-
 
 
 /*

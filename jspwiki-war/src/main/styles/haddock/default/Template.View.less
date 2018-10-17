@@ -55,6 +55,7 @@ Section: Header & Footer
 DOM structure:
 (start code)
     div.header
+      div.titlebox
       div.topline
         div.pagename
         div.pull-left
@@ -84,9 +85,6 @@ DOM structure:
 		        li.recents ...
 		        li.recents.clear ...
 
-
-      div.breadcrumbs
-
     ...
 
     div.footer
@@ -100,17 +98,16 @@ DOM structure:
 .container-fluid {
 	//margin:0 1em;
 
-    .header > * {
-        padding-right:@padding-base-horizontal;
-    }
-
+    .header > *:not(.titlebox),
     > .row > ul.nav {
-        padding-right: @padding-base-horizontal;
+        //padding-right:@padding-base-horizontal;
     }
-
 }
 
-.titlebox.alert { margin:0; }
+.titlebox {
+	color:@black;
+	.bg-warning;
+}
 
 .header, .footer {
     .clearfix;
@@ -127,7 +124,7 @@ DOM structure:
     //background-repeat:no-repeat;
     background-attachment:fixed; //default=scroll
 
-	> * {
+	> *:not(.titlebox) {
 	    padding: @padding-base-horizontal/4 0 @padding-base-horizontal/4 @padding-base-horizontal;
 	}
     .btn [class^="icon-"]:before { font-size: 1.3em; }
@@ -169,21 +166,17 @@ Fixed .header with hide (on scrolldown)  and show (on scrollup) effects.
     z-index:5;
     width:100%;
     //will-change: transform;
-    .transition( transform 0.2s ease-in-out);
+    .transition( transform 0.1s ease-in-out);
     .translate( 0; 0 ); //transform: translateY(0);
-    //transform-origin: top;
-    //transform: perspective(400px) rotateX(0deg);
 
     //when scrolling-down,  hide the fixed header
     &.scrolling-down {
         .translate(0;-100%); //transform: translateY(-100%); /*hide the header*/
-        //transform: perspective(400px) rotateX(-90deg);
     }
 }
 
 
-.header .pagename,
-.header .breadcrumb {
+.header .pagename {
     .text-overflow();
 }
 
@@ -198,22 +191,6 @@ Fixed .header with hide (on scrolldown)  and show (on scrollup) effects.
 }
 .reader .pagename {
     font-size: 6em;
-}
-
-/*
-JSPWiki-s breadcrumb - do not inherit bootstraps breadcrumbs
-Only show breadcrumb on mouse hover
-*/
-.breadcrumb {
-    .small;
-    .transition(all .5s ease);
-    color:transparent;
-    &:hover { color:inherit; }
-
-    .divider:before {
-        content:"\2022";   //&bull;
-        padding:0 .25em;
-    }
 }
 
 
@@ -271,29 +248,69 @@ body.can-flex {
     clear:both;
 }
 
-.feed {
-
-	//.@{fa-css-prefix};
-    display:inline-block;
-    font-family:FontJspwiki;
-	font-style: normal;
-    font-weight: normal;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-decoration:none;
-
-	&:before { content: "\e610"; } //fixme -- re-use .icon-search
-    &:hover { text-decoration:none; }
-
-    overflow:hidden;
-    vertical-align:middle;
-}
-
 
 // CHECKME
 // *** ConflictContent.jsp ***
 // #conflict
 // #conflictother
 // #conflictown
+
+
+
+
+/*  admin beans */
+/*
+div.formcontainer
+  div.block
+    label
+    input
+    div.description
+*/
+div.admin {
+    .formcontainer {
+        .default;
+        .block { margin-bottom:.5em; }
+        label { }
+        input[type=submit] {
+            .btn;
+            .btn-primary;
+        }
+        input[type=text] {
+            .form-control;
+        }
+        table {
+            .table;
+            .table-bordered;
+            .table-striped;
+            .table-condensed;
+            .wikitable;
+            width:auto; //.table-fit;
+        }
+        .description { .help-block; }
+
+    }
+
+}
+
+    .admin-user-form {
+    	display: -ms-flex;
+	    display: -webkit-flex;
+    	display: flex;
+
+        > div#useredit {
+	        width:80%;
+        }
+        > div#userlist {
+        	margin-right: (@padding-base-horizontal*4);
+        	width:20%;
+
+            .list-group-item.new-user{
+                color: @btn-primary-color;
+                background: @btn-primary-bg;
+                border: @btn-primary-border;
+            }
+        }
+
+    }
+
 

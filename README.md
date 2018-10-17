@@ -1,4 +1,4 @@
-# Apache JSPWiki 2.10 - Documentation
+# Apache JSPWiki 2.11 - Documentation
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -35,16 +35,16 @@ Okay, so you wanna Wiki?  You'll need the following things:
 
 REQUIRED:
 
-* A JSP engine that supports Servlet API 2.5.  We recommend Tomcat from
+* A JSP engine that supports Servlet API 3.1.  We recommend Tomcat from
   http://tomcat.apache.org/ for a really easy installation.
-  Tomcat 6.x or later is supported.
+  Tomcat 8.x or later is supported.
 
 * Some previous administration experience...  If you've ever installed
   Apache or any other web server, you should be pretty well off.
 
 * And of course, a server to run the JSP engine on.
 
-* JDK 1.6+
+* JDK 8+
 
 
 OPTIONAL:
@@ -69,47 +69,47 @@ engine.  Just do the following:
    your desired URL (if you want it different from /JSPWiki).  For example,
    if you want your URL to be http://.../wiki, rename it to wiki.war.
    This name will be referred to as <appname> below.
-   Place this WAR in your $TOMCAT_HOME/webapps folder and then start Tomcat.
+   Place this WAR in your `$TOMCAT_HOME/webapps` folder and then start Tomcat.
 
-3) Point your browser at http://<myhost>/<appname>/Install.jsp
+3) Point your browser at http://&lt;myhost>/&lt;appname>/Install.jsp
 
 4) Answer a couple of simple questions
 
 5) Restart your container
 
-6) Point your browser to http://<myhost>/<appname>/
+6) Point your browser to http://&lt;myhost>/&lt;appname>/
 
 That's it!
 
 
 ## Advanced Installation
 
-In the $TOMCAT_HOME/lib folder (or equivalent based on your servlet container),
-place a jspwiki-custom.properties file, which can contain any overrides to the 
-default ini/jspwiki.properties file in the JSPWiki JAR.  For any values not 
-placed in jspwiki-custom.properties file JSPWiki will rely on the default file.
+In the `$TOMCAT_HOME/lib` folder (or equivalent based on your servlet container),
+place a `jspwiki-custom.properties` file, which can contain any overrides to the 
+default `ini/jspwiki.properties` file in the JSPWiki JAR.  For any values not 
+placed in `jspwiki-custom.properties` file JSPWiki will rely on the default file.
 Review the default file to look for values you may wish to override in the custom
 file.  Some common values to override in your custom file include 
-jspwiki.xmlUserDatabaseFile, jspwiki.xmlGroupDatabaseFile
-jspwiki.fileSystemProvider.pageDir, jspwiki.basicAttachmentProvider.storageDir, 
-and log4j.appender.FileLog.File.  The comments in the default file will suggest 
+`jspwiki.xmlUserDatabaseFile`, `jspwiki.xmlGroupDatabaseFile`, 
+`jspwiki.fileSystemProvider.pageDir`, `jspwiki.basicAttachmentProvider.storageDir`, 
+and `log4j.appender.FileLog.File`.  The comments in the default file will suggest 
 appropriate values to override them with. 
 
-The custom file can also be placed in the WEB-INF/ folder of the WAR, but storing
-this file in TOMCAT_HOME/lib allows you to upgrade the JSPWiki WAR without needing
+The custom file can also be placed in the `WEB-INF/` folder of the WAR, but storing
+this file in `$TOMCAT_HOME/lib` allows you to upgrade the JSPWiki WAR without needing
 to re-insert your customizations.
 
-Unzip the contents of jspwiki-corepages.zip into your newly created
+Unzip the contents of `jspwiki-corepages.zip` into your newly created
 directory.  You can find the rest of the documentation in the
-JSPWiki-doc.zip file.
+`JSPWiki-doc.zip` file.
 
 (Re)start tomcat.
 
-Point your browser at http://<where your Tomcat is installed>/MyWiki/.
+Point your browser at http://&lt;where your Tomcat is installed>/MyWiki/.
 You should see the Main Wiki page.  See the next section if you want
 to edit the pages =).
 
-The WEB-INF/jspwiki.policy file is used to change access permissions for 
+The `WEB-INF/jspwiki.policy` file is used to change access permissions for 
 the Wiki.
 
 Check the Apache JSPWiki website and project documentation for additional

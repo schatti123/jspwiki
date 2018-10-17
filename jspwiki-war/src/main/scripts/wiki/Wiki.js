@@ -21,7 +21,7 @@
 
 
 /*eslint-env browser*/
-/*global $, $$, Form, Hash, Behavior, HighlightQuery, Accesskey */
+/*global $, $$, Form, Hash, Behavior, HighlightQuery, Accesskey, Dialog */
 /*exported  Wiki */
 
 /*
@@ -60,7 +60,7 @@ Class: Wiki
 */
 var Wiki = {
 
-    version: "haddock03",  //used to validate compatible preference cookies
+    version: "haddock04",  //used to validate compatible preference cookies
 
     initialize: function(){
 
@@ -72,19 +72,18 @@ var Wiki = {
         wiki.update = behavior.update.bind(behavior);
 
 
-        // add core jspwiki behaviors; needed to support the default template jsp's
+
+        //jspwiki behaviors; needed to support the haddock template jsp's
         wiki.add( "body", wiki.caniuse )
 
             .add( "[accesskey]", Accesskey )
 
             //toggle effect:  toggle .active class on this element when clicking toggle element
-            //.add("[data-toggle]", "onToggle", {attr:"data-toggle"})
             .add( "[data-toggle]", function(element){
 
                 element.onToggle( element.get("data-toggle"), function(isActive){
                     var pref = element.get("data-toggle-pref");
-                    if( pref ){
-                        //console.log(pref, isActive);
+                    if (pref) {
                         wiki.prefs.set(pref, isActive ? "active" : "");
                     }
                 });
@@ -92,13 +91,11 @@ var Wiki = {
 
             //generate modal confirmation boxes, eg prompting to execute
             //an unrecoverable action such as deleting a page or attachment
-            //.add("[data-modal]", "onModal", {attr:"data-modal"})
             .add( "[data-modal]", function(element){
                 element.onModal( element.get("data-modal") );
             })
 
-            //hover effects: show/hide this element when hovering over the parent element
-            //.add("[data-toggle]", "onHover", {attr:"data-hover-parent"})
+            //hover effects: show/hide an element when hovering over the data-hover-parent element
             .add( "[data-hover-parent]", function(element){
                 element.onHover( element.get("data-hover-parent") );
             })
@@ -110,7 +107,12 @@ var Wiki = {
             })
 
             //add header scroll-up/down effect
-            .add( ".fixed-header > .header", wiki.yoyo)
+            .add(".fixed-header > .header", wiki.yoyo)
+
+            //sticky toolbar in the editor
+            .add(".sticky", function (element) {
+                element.onSticky();
+            })
 
             //highlight previous search query retreived from a cookie or referrer page
             .add( ".page-content", function(element){
@@ -173,8 +175,6 @@ var Wiki = {
             domready: wiki.domready.bind(wiki)
         });
 
-
-
     },
 
 
@@ -188,6 +188,7 @@ var Wiki = {
         body.ifClass( !( isIE11 || isIE9or10 ) , "can-flex");
 
     },
+
 
     /*
     Function: domready
@@ -217,6 +218,15 @@ var Wiki = {
             wiki.prefs.set("version", wiki.version);
         }
 
+        //The initial Sidebar will be active depending on a cookie state.
+        //However, for small screen,  the default state will be hidden.
+        wiki.media("(min-width:768px)", function( screenIsLarge ){
+
+            if(!screenIsLarge){
+                $$(".content")[0].removeClass("active"); //always hide sidebar on pageload for narrow screens
+            }
+
+        });
 
         //wiki.url = null;  //CHECK:  why this is needed?
         //console.log( wiki.prefs.get("SectionEditing") , wiki.EditPermission ,wiki.Context );
@@ -227,7 +237,7 @@ var Wiki = {
         }
 
         //console.log( "section", document.referrer, document.referrer.match( /\&section=(\d+)$/ ) );
-        wiki.scrollTo( ( document.referrer.match( /\&section=(\d+)$/ ) || [,-1])[1] );
+        wiki.scrollTo( ( document.referrer.match( /&section=(\d+)$/ ) || [0,-1])[1] );
 
         // initialize all registered behaviors
         wiki.update();
@@ -236,6 +246,24 @@ var Wiki = {
         wiki.popstate();
 
         wiki.autofocus();
+
+    },
+
+
+    /*
+    Function: media query event handler
+        Catch media-query changes  (eg screen width,  portrait/landscape changes,  etc...
+    */
+    media: function(query, callback){
+
+        function queryChanged( event ){ callback( event.matches ); }
+
+        if( /*window.*/ matchMedia ){
+
+            var mediaQueryList = matchMedia( query );
+            mediaQueryList.addListener( queryChanged );
+            queryChanged( mediaQueryList );
+        }
 
     },
 
@@ -248,43 +276,48 @@ var Wiki = {
     DOM Structure:
     (start code)
         div[style='padding-top:nn']    => nn==height of header;  push content down
-        div.header.yoyo[.scroll-down]  => css: position=fixed
+        div.header.yoyo[.scrolling-down]  => css: position=fixed
     (end)
 
     */
     yoyo: function( header ){
 
-        var height = header.offsetHeight,
-            semaphore,
+        var height = "offsetHeight",
             scrollY,
-            lastScrollY = 0;
+            lastScrollY = 0,
 
-        //add spacer just infront of fixed element, adjust height == header (fixed elements do not take space in the dom)
-        "div".slick({styles: { paddingTop: height } }).inject(header,"before");
+            //add spacer just infront of fixed element,
+            //and adjust height == header (fixed elements do not take space in the dom)
+            spacer = "div".slick().inject(header, "before"),
+            busy;
 
-        window.addEvent("scroll", function(){ semaphore = true; });
+        function update(){
 
-        setInterval( function(){
+            scrollY = window.getScroll().y;
 
-            if( semaphore ){
+            spacer.style.paddingTop = header[height]+"px"; //update after window resize
 
-                semaphore = false;
-                scrollY = window.getScroll().y;
+            // Limit scroll top to counteract iOS / OSX bounce.
+            scrollY = scrollY.limit(0, window.getScrollSize().y - window.getSize().y);
 
-                // Limit scroll top to counteract iOS / OSX bounce.
-        		scrollY = scrollY.limit(0, window.getScrollSize().y - window.getSize().y);
+            if (Math.abs(lastScrollY - scrollY) > 5 /* minimum difference */) {
 
-                if( Math.abs(lastScrollY - scrollY) > 5 /* minimum difference */ ){
+                header.ifClass(scrollY > lastScrollY && scrollY > header[height], "scrolling-down");
+                lastScrollY = scrollY;
 
-                    header.ifClass( scrollY > lastScrollY && scrollY > height, "scrolling-down" );
-                    //console.log(scrollY, lastScrollY, height);
-
-
-                    lastScrollY = scrollY;
-                }
             }
+            busy = false;
+        }
 
-        }, 250);
+        function handleEvent(){
+            if(!busy){
+              busy = true;
+              requestAnimationFrame( update );
+            }
+        }
+
+        window.addEvents({ scroll: handleEvent, resize: handleEvent });
+        update(); //first run: set height of the spacer
 
     },
 
@@ -381,9 +414,9 @@ var Wiki = {
         // BasePath: if JSPWiki is installed in the root, then we have to make sure that
         // the cookie-cutter works properly here.
         url = wiki.BaseUrl;
-        url = url ? url.slice( url.indexOf(host) + host.length, -1 ) : "";
-        wiki.BasePath = ( url /*===""*/ ) ? url : "/";
-        console.log(url, host, wiki.BaseUrl + " basepath: " + wiki.BasePath);
+        url = url ? url.slice(url.indexOf(host) + host.length, -1) : "";
+        wiki.BasePath = (url /*===""*/) ? url : "/";
+        //console.log(url, host, wiki.BaseUrl + " basepath: " + wiki.BasePath);
 
     },
 
@@ -495,7 +528,7 @@ var Wiki = {
     cleanPageName: function( pagename ){
 
         //\w is short for [A-Z_a-z0-9_]
-        return pagename.clean().replace(/[^\w\u00C0-\u1FFF\u2800-\uFFFD\(\)&\+,\-=\.\$ ]/g, "");
+        return pagename.clean().replace(/[^\w\u00C0-\u1FFF\u2800-\uFFFD()&+,\-=.$ ]/g, "");
 
     },
 
@@ -758,16 +791,16 @@ var Wiki = {
                 //urlEncoded: true, //content-type header = www-form-urlencoded + encoding
                 //encoding: "utf-8",
                 //encoding: "ISO-8859-1",
-        		headers: {
-		        	//'X-Requested-With': 'XMLHttpRequest',
-			        //'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-        			'Accept': 'application/json',
-		        	'X-Request': 'JSON'
-		        },
+                headers: {
+                    //'X-Requested-With': 'XMLHttpRequest',
+                    //'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+                    'Accept': 'application/json',
+                    'X-Request': 'JSON'
+                },
                 onSuccess: function( responseText ){
 
                     //console.log(responseText, JSON.parse( responseText ), responseText.charCodeAt(8),responseText.codePointAt(8), (encodeURIComponent(responseText)), encodeURIComponent("ä"), encodeURIComponent("Ã")  );
-                    callback( JSON.parse( responseText ) );
+                    callback(responseText == "" ? "" : JSON.parse(responseText));
                     //callback( responseText );
 
                 },

@@ -70,22 +70,22 @@ var TheSlimbox, T = TableX;
 Behavior: Broken images
     Replace broken image browser icons
 */
-wiki.once( "img", function(imgs){
+wiki.once( "img:not(outlink)", function(imgs){
 
     imgs.addEvent("error", function(){
 
         var img = $(this);
         [ "span.danger.img-error", {
-            text: "broken.image".localize() //Broken Image!
-        }, [
-            "span", { text: img.alt || img.src }
+                text: "broken.image".localize()
+            },
+            [
+                "span", { text: img.alt || img.src }
             ]
         ].slick().replaces(img);
 
     });
 
 });
-
 
 /*
 Behavior: GraphBars, Progress-bars
@@ -468,9 +468,7 @@ Example:
 >    }}} /%
 
 */
-    .add("div.prettify:not(.prettyprint) pre, div.prettify:not(.prettyprint) code", function(element){
-
-        element.addClass("prettyprint");
+    .add("div.prettify pre:not(.prettyprint), div.prettify code:not(.prettyprint)", function(element){
 
         //brute-force line-number injection
         "div".slick().wraps(element).grab(
@@ -482,10 +480,20 @@ Example:
 
             }),"top");
 
+        element.addClass("prettyprint");
+        /*html5 expects  <pre><code>  */
+        if( element.match("pre") ){
+            element.innerHTML = "<code>" + element.innerHTML + "</code>";
+        }
+
     })
-    .add("[class~=prettify-nonum] pre, [class~=prettify-nonum] code", function(element){
+    .add("[class~=prettify-nonum] pre:not(.prettyprint), [class~=prettify-nonum] code:not(.prettyprint)", function(element){
 
         element.addClass("prettyprint");
+        /*html5 expects  <pre><code>  */
+        if( element.match("pre") ){
+            element.innerHTML = "<code>" + element.innerHTML + "</code>";
+        }
 
     })
 
@@ -519,7 +527,7 @@ Behavior: Table behaviors
     %%zebra-pink ... /%      => odd rows get backgroundcolor red
     %%zebra-eee-red ... /%     => odd rows: #eee, even rows: red
 
-    %%table-striped-bordered-hover-condensed-fit-filter-sort
+    %%table-striped-bordered-hover-condensed-fit-filter-sort-noborder
     %%sortable .. /%
     %%table-filter .. /%
 
@@ -555,7 +563,7 @@ Behavior: Table behaviors
 
             arg = args.shift();
 
-            if( arg.test("striped|bordered|hover|condensed|fit")){
+            if( arg.test("striped|bordered|hover|condensed|fit|noborder")){
 
                 tables.addClass("table-"+arg);
 

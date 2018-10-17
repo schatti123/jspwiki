@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.jspwiki</groupId>
     <artifactId>jspwiki-builder</artifactId>
-    <version>2.10.3-SNAPSHOT</version>
+    <version>2.11.0.M1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -46,7 +46,55 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-tomcat-launcher</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <archive>
+                <manifest>
+                  <mainClass>org.apache.catalina.startup.Bootstrap</mainClass>
+                </manifest>
+              </archive>
+              <descriptors>
+                <descriptor>${basedir}/src/main/assembly/tomcat-launcher.xml</descriptor>
+              </descriptors>
+              <finalName>tomcat-launcher-${tomcat.version}</finalName>
+              <outputDirectory>./target/launchers</outputDirectory>
+              <!-- 
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters> -->
+            </configuration>
+          </execution>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <tarLongFileMode>gnu</tarLongFileMode>
+              <descriptors>
+                <descriptor>${basedir}/src/main/assembly/woas-dist.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
@@ -55,6 +103,7 @@
             <configuration>
               <target>
                 <property name="jspwiki.woas.version" value="${project.version}" />
+                <property name="jspwiki.tomcat.version" value="${tomcat.version}" />
                 <ant antfile="${basedir}/build.xml" target="woas:info" />
                 <ant antfile="${basedir}/build.xml" target="woas:copy-woas" />
               </target>
@@ -64,12 +113,13 @@
             </goals>
           </execution>          
           <execution>
-            <id>woas:copy-tomcat-7</id>
+            <id>woas:copy-tomcat</id>
             <phase>prepare-package</phase>
             <configuration>
               <target>
                 <property name="jspwiki.woas.version" value="${project.version}" />
-                <ant antfile="${basedir}/build.xml" target="woas:copy-tomcat-7" />
+                <property name="jspwiki.tomcat.version" value="${tomcat.version}" />
+                <ant antfile="${basedir}/build.xml" target="woas:copy-tomcat" />
               </target>
             </configuration>
             <goals>
@@ -82,8 +132,9 @@
             <configuration>
               <target>
                 <property name="jspwiki.woas.version" value="${project.version}" />
+                <property name="jspwiki.tomcat.version" value="${tomcat.version}" />
                 <ant antfile="${basedir}/build.xml" target="woas:info" />
-                <ant antfile="${basedir}/build.xml" target="woas:copy-tomcat-7-launchers" />
+                <ant antfile="${basedir}/build.xml" target="woas:copy-tomcat-launchers" />
               </target>
             </configuration>
             <goals>
@@ -93,9 +144,7 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.8</version>
         <executions>
           <!-- Unpack the JSP Wiki web archive -->
           <execution>
@@ -166,7 +215,7 @@
                 <artifactItem>
                   <groupId>org.apache.tomcat</groupId>
                   <artifactId>tomcat</artifactId>
-                  <version>7.0.52</version>
+                  <version>${tomcat.version}</version>
                   <type>zip</type>
                 </artifactItem>
               </artifactItems>
@@ -175,26 +224,19 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <!-- Create the installed/released artifacts -->
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <configuration>
-              <tarLongFileMode>gnu</tarLongFileMode>
-              <descriptors>
-                <descriptor>${basedir}/src/main/assembly/woas-dist.xml</descriptor>
-              </descriptors>
-            </configuration>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
-
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jsp-api</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+  </dependencies>
 </project>

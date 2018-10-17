@@ -1,3 +1,267 @@
+2018-09-30  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.11.0-M1-git-02: minimum required Servlet / JSP is now 3.1 / 2.3
+
+       * add jspwiki-markdown to the main build
+
+       * flexmark updated to 0.34.46
+
+2018-09-14  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.11.0-M1-git-01: minimum required to build/run is now Java 8 / Maven 3.5.0
+
+       * fix for JSPWIKI-932 - Failed to start managers. java.util.ConcurrentModificationException
+
+2018-08-31  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+	   * update flexmark to 0.34.22 and ASF parent pom to 21
+
+	   * prepare release for 2.10.5
+
+2018-08-31  Siegfried Goeschl (sgoeschl@apache.org)
+
+       * 2.10.5-git-09 : JSPWIKI-1073 Upgrade the jspwiki-portable build
+
+2018-07-08  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.5-git-08 : update flexmark to 0.34.6 and slf4j to 1.7.25
+
+2018-07-09  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.5-git-07 : fix to plain haddock editor related to the new
+         functionality to recover unsaved page edits.
+
+         You can test this like so:
+         - open a page for edit in the haddock template
+         - make some changes to the page
+         - move to another page without saving (or close the browser tab)
+         - click LEAVE when the popup 'changes you made may not be saved' appears.
+         - reopen the page for edit
+         - you should now receive a new popup which allows you to restore or abandon
+           the unsaved changes
+
+
+2018-07-08  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.5-git-06 : update bundled Apache Tomcat on portable JSPWiki to 7.0.90
+
+2018-07-01  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.5-git-05 : few more haddock template updates
+
+       * The haddock editor has now a page restore functionality to recover unsaved page
+         edits.  When your session or login timer expires, or your accidentally close a
+         browser tab without saving, etc...  your last changes are now preserved in the
+         localstorage area of your browser.
+         At the start of a new edit sessions,  you will be presented with a modal dialog
+         to restore the cached page.
+
+       * The "attach" and the "info" menu are now combined into a single navigation menu.
+         The INFO or ATTACHMENT UPLOAD page can be accessed with an additional
+         click of a button. This also improves usability on touch devices.
+
+       * Small refinements of the Search and User buttons (top-right corner)
+         to improve support for touch devices. (issue reported by Juan Pablo)
+
+
+2018-06-17  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.5-git-04  Fine-tuning Haddock for mobile devices.
+
+       * Improve accessibility on hover-menu's for touch-devices. They'll open after
+         a touch-down event; and will close when touching any area outside the menu.
+
+       * Fixing access to the Find and User menu's for touch devices.
+
+       * Several small style improvements on the navigation bar for mobile devices
+         (hiding CARET to indicate hover-menu's, ...)
+
+       * Added touch-support for %%magnify style.
+
+       * Breadcrumbs are now moved to a proper drop-down menu (...) on the navigation bar
+         instead of the previously not-so-obvious 'mouse-over-zone' under the pagename.
+         This also makes breadcrumbs accessible to the tablet & phone users.
+
+       * Fixed a display error when uploading multiple attachements in one step.
+
+
+2018-06-05  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.5-git-03  JSPWIKI-1071 Ajax request header 'Connection' forbidden
+         impacting the DEFAULT jspwiki template.
+
+
+2018-06-03  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.5-git-02
+
+       * JSPWIKI-1070: (properly) Support JDK 10 builds
+
+       * Generate sha1 and sha512 checksums for build artifacts
+
+2018-05-27  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.5-git-01
+
+       * JSPWIKI-1070: Support JDK 10 builds
+
+2018-04-29  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-10  Bugfix in AddCSS.JS related to url() parsing
+
+2018-04-28  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-09  Better support for mobile devices in the Haddock Template
+            See JSPWIKI-835
+            - Updates various styles to better fit small screens.  (tabs, accordion, columns, ...)
+            - On small screens,  the sidebar is by default closed.
+              On wider screens, the sidebar is open/closed based on the previous state
+              which is saved in a cookie.
+
+2018-04-22  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-08  Adding support for mobile devices to the Haddock Template
+            See JSPWIKI-835
+            Part-1 -- many style adjustment to fit smaller screens
+            - Sidebar now slides over the main page on mobile devices
+            - Header (pagename, and menu bar) are better fit for small screens
+            - Width of several menu's and dropdowns is restricted for small screens
+            - Editor toolbar resized for small screens
+
+            Other:
+            - JSPWIKI-1058 Editor toolbar now remains on screen, even when scrolling down
+            - Small tweaks of the RecentChanges output
+            - JSPWIKI-1068 : fixing positioning of the TitleBox
+
+
+2018-04-19  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-07 Adding a favicon to the haddock template
+
+2018-04-11  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-06  JSPWIKI-1069 i18n errors in german translation
+
+2018-03-31  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-05  JSPWIKI-1068 TitleBox rendering on Haddock
+
+2018-03-29  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.4-git-04
+
+       * JSPWIKI-1039/JSPWIKI-1067: ACLs are not taken into account when cache
+         is disabled / View-only ACLs are not enforced
+
+2018-03-29  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.4-git-03
+
+       * Main page can be revealed when invoking some JSPs without parameters
+         (reported by Motohiko Matsuda, thanks!)
+
+2018-03-25  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.4-git-02
+
+       * Further fix on JSPWIKI-1064 - Link to non-existing page doesn't change if
+         linked page is created, not all page caches were properly flushed.
+
+2018-03-04  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * Fixed all javadoc errors when building using java 8 - no version bump
+
+2018-02-25  Dirk Frederickx (brushed AT apache DOT org)
+
+       * 2.10.4-git-01  Fixing Admin JSP Bugs
+
+       * Quick fix to admin and user management pages:  adding proper tabs to
+         the ADMIN page, fixing javascript bugs in user management page
+         (reported by Harry)
+
+2018-02-03  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-48
+
+       * JSPWIKI-835 - better mobile experience: move sidebar to bottom on
+         extra-small devices (< 768px, only on haddock template)
+
+       * Some internal refactors to org.apache.wiki.WatchDog
+
+       * Flexmark updated to 0.28.38.
+
+2018-01-27  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-47
+
+       * Another fix on JSPWIKI-1064 - Link to non-existing page doesn't change if
+         linked page is created, as the page render cache must also take into account
+         if the plugins should be rendered or not.
+
+       * JSPWiki portable: Update bundled Apache Tomcat to latest version on 7.x branch
+         and launch4j to 3.11.
+
+       * JSPWiki portable: As appbundler is not longer accesible through java.net, use
+         fork at https://github.com/teras/appbundler instead.
+
+       * Updated maven plugins' versions to latest + use latest ASF parent pom.
+
+2018-01-21  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * Updated <scm/> section from main pom.xml so it points to github repo
+
+       * Flexmark updated to 0.28.34 (no version bump).
+
+2017-12-30  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * Upgraded all test from JUnit 3 to JUnit 4 (no version bump).
+
+2017-12-27  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-46
+
+       * JSPWIKI-802 - Markdown support
+         * urls are not set on attribute provider derived classes, as this has some
+           unwanted side effects. Introduced JSPWikiLink, a wrapper around Flexmark's
+           links which retain the original wiki link.
+         * updated Flexmark to 0.28.24.
+
+2017-12-16  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-45
+
+       * Fixed JSPWIKI-1064 - Link to non-existing page doesn't change if linked page
+         is created
+
+       * Improvement on JSPWIKI-843 - exclude tests from test-jar
+
+2017-12-08  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-44
+
+       * JSPWIKI-802 - initial markdown support see
+         https://jspwiki-wiki.apache.org/Wiki.jsp?page=Markdown%20Support
+         for details
+
+2017-12-03  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-43
+
+       * Fixed JSPWIKI-843 - generate test-jar for jspwiki-war (wasn't being generated)
+
+       * Extract WikiLink parsing operations from JSPWikiMarkupParser, LinkParser,
+         VariableManager to their own class, LinkParsingOperations
+
+       * Move (private) JSPWikiMarkupParser#getLocalBooleanProperty to
+        (public) WikiContext#getBooleanWikiProperty
+
+2017-11-16  Juan Pablo Santos (juanpablo AT apache DOT org)
+
+       * 2.10.3-git-42
+
+       * small refactor to move some private constants to public at MarkupParser and
+         WikiRenderer, so they can be reused throughout the code and custom extensions.
+
 2017-08-22  Juan Pablo Santos (juanpablo AT apache DOT org)
 
        * 2.10.3-git-41

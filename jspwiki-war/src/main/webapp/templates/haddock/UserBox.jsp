@@ -31,12 +31,14 @@
 <c:set var="username"><wiki:UserName /></c:set>
 <c:set var="loginstatus"><wiki:Variable var='loginstatus'/></c:set>
 
-<div class="cage pull-right userbox user-${loginstatus}">
+<div class="cage pull-right userbox user-${loginstatus}" tabindex="0">
 
-  <div class="btn"><span class="icon-user"></span><span class="caret"></span></div>
-
+  <%-- <div onclick="" class="btn">
+      FFS the onclick="" is needed for hover effect on ipad https://www.codehaven.co.uk/fix-css-hover-on-iphone-ipad/ --%>
+  <a href="#" class="btn">
+    <span class="icon-user"></span><span class="caret"></span>
+  </a>
   <ul class="dropdown-menu pull-right" data-hover-parent=".userbox">
-
     <li>
       <wiki:UserCheck status="anonymous">
         <wiki:LinkTo page="UserPreferences">

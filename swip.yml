@@ -12,7 +12,7 @@ install:
 capture:
   build:
     buildCommands:
-    - shell: [mvn, -f, pom.xml, clean, install]
+    - shell: [mvn, -f, pom.xml, clean, install, -DskipTests]
   fileSystem:
     ears:
       extensions: [ear]

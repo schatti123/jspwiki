@@ -7,8 +7,6 @@ phases:
   pre_build:
     commands:
       - echo Nothing to do in the pre_build phase...
-      - cov-configure --java
-      - cov-configure --javascript
   build:
     commands:
       - echo Build started on `date`
